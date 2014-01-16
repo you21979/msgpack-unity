@@ -1,4 +1,4 @@
-# MessagePack for Unity
+# MessagePack for Unity 4.2.2f1
 
 ## What is it?
 
