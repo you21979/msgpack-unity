@@ -154,13 +154,13 @@ namespace MsgPack
 		}
 		public sealed class DynamicMethodPacker : PackerBase
 		{
-			 private static MethodInfo LookupMemberMappingMethod;
+			private static MethodInfo LookupMemberMappingMethod;
 			static Dictionary<Type, IDictionary<string, int>> UnpackMemberMappings;
 
 			static DynamicMethodPacker ()
 			{
 				UnpackMemberMappings = new Dictionary<Type, IDictionary<string, int>> ();
-				LookupMemberMappingMethod = typeof (DynamicMethodPacker).GetMethod ("LookupMemberMapping", BindingFlags.Static | BindingFlags.NonPublic);
+				LookupMemberMappingMethod = typeof (DynamicMethodPacker).GetMethod ("LookupMemberMapping", BindingFlags.Static | BindingFlags.Public);
 			}
 
 			public DynamicMethodPacker () : base ()
@@ -208,7 +208,7 @@ namespace MsgPack
 
 			static MemberInfo[] LookupMembers (Type t)
 			{
-				BindingFlags baseFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+				BindingFlags baseFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.Public;
 				List<MemberInfo> list = new List<MemberInfo> ();
 				list.AddRange (t.GetFields (baseFlags));
 				// TODO: Add NonSerialized Attribute Filter ?
@@ -253,7 +253,7 @@ namespace MsgPack
 				return new DynamicMethod (name, returnType, parameterTypes, true);
 			}
 
-			internal static IDictionary<string,int> LookupMemberMapping (Type t)
+			public static IDictionary<string,int> LookupMemberMapping (Type t)
 			{
 				IDictionary<string, int> mapping;
 				lock (UnpackMemberMappings) {
@@ -278,7 +278,7 @@ namespace MsgPack
 			static MethodBuilderPacker ()
 			{
 				UnpackMemberMappings = new Dictionary<Type, IDictionary<string, int>> ();
-				LookupMemberMappingMethod = typeof (MethodBuilderPacker).GetMethod ("LookupMemberMapping", BindingFlags.Static | BindingFlags.NonPublic);
+				LookupMemberMappingMethod = typeof (MethodBuilderPacker).GetMethod ("LookupMemberMapping", BindingFlags.Static | BindingFlags.Public);
 
 				DynamicAsmName = new AssemblyName (AssemblyName);
 				DynamicAsmBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (DynamicAsmName, AssemblyBuilderAccess.Run);
@@ -388,7 +388,7 @@ namespace MsgPack
 				mb = tb.DefineMethod ("Unpack", MethodAttributes.Static | MethodAttributes.Public, t, new Type[] {typeof (MsgPackReader)});
 			}
 
-			internal static IDictionary<string,int> LookupMemberMapping (Type t)
+			public static IDictionary<string,int> LookupMemberMapping (Type t)
 			{
 				IDictionary<string, int> mapping;
 				lock (UnpackMemberMappings) {
@@ -403,7 +403,7 @@ namespace MsgPack
 		#endregion
 
 		#region default pack/unpack methods
-		internal static class DefaultPackMethods
+		public static class DefaultPackMethods
 		{
 			public static void Register (Dictionary<Type, MethodInfo> packMethods, Dictionary<Type, MethodInfo> unpackMethods)
 			{
@@ -415,7 +415,7 @@ namespace MsgPack
 			static void RegisterPackMethods (Dictionary<Type, MethodInfo> packMethods)
 			{
 				Type type = typeof (DefaultPackMethods);
-				MethodInfo[] methods = type.GetMethods (BindingFlags.Static | BindingFlags.NonPublic);
+				MethodInfo[] methods = type.GetMethods (BindingFlags.Static | BindingFlags.Public);
 				string methodName = "Pack";
 				for (int i = 0; i < methods.Length; i ++) {
 					if (!methodName.Equals (methods[i].Name))
@@ -427,7 +427,7 @@ namespace MsgPack
 				}
 			}
 
-			internal static void Pack (MsgPackWriter writer, string x)
+			public static void Pack (MsgPackWriter writer, string x)
 			{
 				if (x == null) {
 					writer.WriteNil ();
@@ -440,7 +440,7 @@ namespace MsgPack
 			#region Unpack
 			static void RegisterUnpackMethods (Dictionary<Type, MethodInfo> unpackMethods)
 			{
-				BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
+				BindingFlags flags = BindingFlags.Static | BindingFlags.Public;
 				Type type = typeof (DefaultPackMethods);
 				MethodInfo mi = type.GetMethod ("Unpack_Signed", flags);
 				unpackMethods.Add (typeof (sbyte), mi);
@@ -472,14 +472,14 @@ namespace MsgPack
 				unpackMethods.Add (typeof (string), mi);
 			}
 
-			internal static int Unpack_Signed (MsgPackReader reader)
+			public static int Unpack_Signed (MsgPackReader reader)
 			{
 				if (!reader.Read () || !reader.IsSigned ())
 					UnpackFailed ();
 				return reader.ValueSigned;
 			}
 
-			internal static long Unpack_Signed64 (MsgPackReader reader)
+			public static long Unpack_Signed64 (MsgPackReader reader)
 			{
 				if (!reader.Read ())
 					UnpackFailed ();
@@ -491,14 +491,14 @@ namespace MsgPack
 				return 0; // unused
 			}
 
-			internal static uint Unpack_Unsigned (MsgPackReader reader)
+			public static uint Unpack_Unsigned (MsgPackReader reader)
 			{
 				if (!reader.Read () || !reader.IsUnsigned ())
 					UnpackFailed ();
 				return reader.ValueUnsigned;
 			}
 
-			internal static ulong Unpack_Unsigned64 (MsgPackReader reader)
+			public static ulong Unpack_Unsigned64 (MsgPackReader reader)
 			{
 				if (!reader.Read ())
 					UnpackFailed ();
@@ -510,35 +510,35 @@ namespace MsgPack
 				return 0; // unused
 			}
 
-			internal static bool Unpack_Boolean (MsgPackReader reader)
+			public static bool Unpack_Boolean (MsgPackReader reader)
 			{
 				if (!reader.Read () || !reader.IsBoolean ())
 					UnpackFailed ();
 				return reader.ValueBoolean;
 			}
 
-			internal static float Unpack_Float (MsgPackReader reader)
+			public static float Unpack_Float (MsgPackReader reader)
 			{
 				if (!reader.Read () || reader.Type != TypePrefixes.Float)
 					UnpackFailed ();
 				return reader.ValueFloat;
 			}
 
-			internal static double Unpack_Double (MsgPackReader reader)
+			public static double Unpack_Double (MsgPackReader reader)
 			{
 				if (!reader.Read () || reader.Type != TypePrefixes.Double)
 					UnpackFailed ();
 				return reader.ValueDouble;
 			}
 
-			internal static string Unpack_String (MsgPackReader reader)
+			public static string Unpack_String (MsgPackReader reader)
 			{
 				if (!reader.Read () || !reader.IsRaw ())
 					UnpackFailed ();
 				return reader.ReadRawString ();
 			}
 
-			internal static void UnpackFailed ()
+			public static void UnpackFailed ()
 			{
 				throw new FormatException ();
 			}

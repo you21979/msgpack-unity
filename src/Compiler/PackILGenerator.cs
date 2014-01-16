@@ -162,7 +162,7 @@ FinallyProcess:
 			Func<Type, IDictionary<string,int>> lookupMemberMapping,
 			MethodInfo lookupMemberMappingMethod)
 		{
-			MethodInfo failedMethod = typeof (PackILGenerator).GetMethod ("UnpackFailed", BindingFlags.Static | BindingFlags.NonPublic);
+			MethodInfo failedMethod = typeof (PackILGenerator).GetMethod ("UnpackFailed", BindingFlags.Static | BindingFlags.Public);
 			MemberInfo[] members = targetMemberSelector (type);
 			IDictionary<string, int> member_mapping = lookupMemberMapping (type);
 			for (int i = 0; i < members.Length; i ++)
@@ -273,7 +273,7 @@ FinallyProcess:
 			Func<Type, MethodInfo> lookupUnpackMethod)
 		{
 			Type elementType = arrayType.GetElementType ();
-			MethodInfo failedMethod = typeof (PackILGenerator).GetMethod ("UnpackFailed", BindingFlags.Static | BindingFlags.NonPublic);
+			MethodInfo failedMethod = typeof (PackILGenerator).GetMethod ("UnpackFailed", BindingFlags.Static | BindingFlags.Public);
 
 			Variable msgpackReader = Variable.CreateArg (0);
 			Variable obj = Variable.CreateLocal (il.DeclareLocal (arrayType));
@@ -366,7 +366,7 @@ FinallyProcess:
 		}
 		
 		/// <summary>Exception Helper</summary>
-		internal static void UnpackFailed ()
+		public static void UnpackFailed ()
 		{
 			throw new FormatException ();
 		}
